@@ -18,3 +18,5 @@ Each lecture/week node now has:
 📝 Notes made (yes/no)
 🧠 Understanding tag (lost / ok / got it)
 🔖 Status tag (done / revisit / make flashcards / needs practice)
+
+MVP will focus on Soton Uni COMP3223 module (data hidden from repo for copyright reasons)
