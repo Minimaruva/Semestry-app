@@ -20,3 +20,9 @@ Each lecture/week node now has:
 🔖 Status tag (done / revisit / make flashcards / needs practice)
 
 MVP will focus on Soton Uni COMP3223 module (data hidden from repo for copyright reasons)
+
+For MVP, syllabus extraction will happen with manual usage of generative ai (i.e claude or gemini)
+
+Past paper pdf extraciton is automatic for transformers topic mapping
+
+pdf extraction with pdfplumber (for mvp no ocr so assume papers have extractable text)
