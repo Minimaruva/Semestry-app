@@ -1,5 +1,48 @@
+import json
+
+syllabus = json.loads(open("pipeline\\data\\processed\\COMP3223\\COMP3223_syllabus.json").read())
+# dict_keys(['title', 'module_code', 'academic_year', 'semester', 'level', 
+# 'credits', 'module_lead', 'exclusions', 'overview', 
+# 'aims_and_objectives', 'syllabus', 'teaching', 'resources', 'assessment'])
+
+# print(syllabus["module"].keys())
+
+# print(syllabus["module"]["syllabus"]["topics"])
+
+topic_dict = {}
+
+for topic in syllabus["module"]["syllabus"]["topics"]:
+    topic_name = topic["title"]
+    topic_desc = topic["subtopics"]
+    topic_dict[topic_name] = topic_desc
+
+# print(topic_dict)
+
+from transformers import pipeline
+print("Loading model...")
+classifier = pipeline("zero-shot-classification",
+                      model="facebook/bart-large-mnli")
+
+#  TODO: this classification is not aware of overall syllabus, so classification doesn't reflect relative difficulty within the module.
+
+for i,j in topic_dict.items():
+    sequence_to_classify = f"Module: {syllabus['module']['title']}\nTopic: {i}\nSubtopics: {j}"
+    candidate_labels = ['easy', 'intermediate', 'hard']
+    var = classifier(sequence_to_classify, candidate_labels)
+    
+    top_label = var['labels'][0]
+    top_score = var['scores'][0]
+    
+    print(f"Topic: {i}")
+    print(f"Subtopics: {j}")
+    print(f"Hardness: {top_label} ({top_score:.2%})")
+    print("-" * 20)
 
 
+# sequence_to_classify = "one day I will see the world"
+# candidate_labels = ['introductory', 'intermediate', 'advanced']
+# var = classifier(sequence_to_classify, candidate_labels)
+# print(var)
 
 '''
 Hard + important → red, must prioritise
@@ -15,15 +58,19 @@ INPUTS
 └── manifest.json     → questions, marks, text, year
 
 STEP 1: Semantic hardness (zero-shot, runs once)
+This is needed for semantic understanding of difficulty, as the syllabus descriptions are not standardised and may contain noisy information
+
 Input:  [Module Name] + [Topic Name] + [Syllabus Description] (context prevents noisy garbage classification)
-Model:  facebook/bart-large-mnli on your 1650Ti
+Model:  facebook/bart-large-mnli
 Labels: ["introductory", "intermediate", "advanced"]
 Output: {topic: hardness_score 0-1}
+
 
 STEP 2: Topic mapping (Asymmetric/Cross-Encoder, runs once)
 Input:  question texts + topic names
 Method: embed both, cross-encoder or asymmetric model (e.g., msmarco-distilbert-base-v4) match to handle length asymmetry between 3-word topics and 150-word questions
 Output: {topic: [questions mapped to it]}
+
 
 STEP 3: Exam importance (maths + recency decay)
 Input:  mapped questions + their mark allocations + paper year
