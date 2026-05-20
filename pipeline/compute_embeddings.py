@@ -9,40 +9,45 @@ syllabus = json.loads(open("pipeline\\data\\processed\\COMP3223\\COMP3223_syllab
 
 # print(syllabus["module"]["syllabus"]["topics"])
 
-topic_dict = {}
+# topic_dict = {}
 
-for topic in syllabus["module"]["syllabus"]["topics"]:
-    topic_name = topic["title"]
-    topic_desc = topic["subtopics"]
-    topic_dict[topic_name] = topic_desc
+# for topic in syllabus["module"]["syllabus"]["topics"]:
+#     topic_name = topic["title"]
+#     topic_desc = topic["subtopics"]
+#     topic_dict[topic_name] = topic_desc
 
-# print(topic_dict)
+# # print(topic_dict)
 
-from transformers import pipeline
-print("Loading model...")
-classifier = pipeline("zero-shot-classification",
-                      model="facebook/bart-large-mnli")
+# from transformers import pipeline
+# print("Loading model...")
+# classifier = pipeline("zero-shot-classification",
+#                       model="facebook/bart-large-mnli")
 
-#  TODO: this classification is not aware of overall syllabus, so classification doesn't reflect relative difficulty within the module.
+# #  TODO: this classification is not aware of overall syllabus, so classification doesn't reflect relative difficulty within the module.
 
-for i,j in topic_dict.items():
-    sequence_to_classify = f"Module: {syllabus['module']['title']}\nTopic: {i}\nSubtopics: {j}"
-    candidate_labels = ['easy', 'intermediate', 'hard']
-    var = classifier(sequence_to_classify, candidate_labels)
+# for i,j in topic_dict.items():
+#     sequence_to_classify = f"Module: {syllabus['module']['title']}\nTopic: {i}\nSubtopics: {j}"
+#     candidate_labels = ['easy', 'intermediate', 'hard']
+#     var = classifier(sequence_to_classify, candidate_labels)
     
-    top_label = var['labels'][0]
-    top_score = var['scores'][0]
+#     top_label = var['labels'][0]
+#     top_score = var['scores'][0]
     
-    print(f"Topic: {i}")
-    print(f"Subtopics: {j}")
-    print(f"Hardness: {top_label} ({top_score:.2%})")
-    print("-" * 20)
+#     print(f"Topic: {i}")
+#     print(f"Subtopics: {j}")
+#     print(f"Hardness: {top_label} ({top_score:.2%})")
+#     print("-" * 20)
 
 
-# sequence_to_classify = "one day I will see the world"
-# candidate_labels = ['introductory', 'intermediate', 'advanced']
-# var = classifier(sequence_to_classify, candidate_labels)
-# print(var)
+# # sequence_to_classify = "one day I will see the world"
+# # candidate_labels = ['introductory', 'intermediate', 'advanced']
+# # var = classifier(sequence_to_classify, candidate_labels)
+# # print(var)
+
+# Scrap idea with zero shot for now, or sbert. After tests they don't work good on data
+# embed semantics hardness within json of syllabus in syllabus llm parsing for now. 
+# in future could be replaced by api call to smaller models
+
 
 '''
 Hard + important → red, must prioritise
