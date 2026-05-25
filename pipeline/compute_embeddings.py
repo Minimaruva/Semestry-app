@@ -50,31 +50,39 @@ syllabus = json.loads(open("pipeline\\data\\processed\\COMP3223\\COMP3223_syllab
 
 
 # Step 1 get week difficulties
-moodle = json.loads(open("pipeline\\data\\processed\\COMP3223\\COMP3223_moodle_difficulties.json").read())
+MOODLE = json.loads(open("pipeline\\data\\processed\\COMP3223\\COMP3223_moodle_difficulties.json").read())
 # Keys dict_keys(['schema_version', 'source', 'module_code', 'module_title', 'academic_year', 'linked_modules', 
 # 'resources', 'staff', 'recurring_sessions', 'weeks', 'labs', 'tutorials'])
 # print(moodle["weeks"])
 # {week number: difficulty_score} easy =1, intermediate = 2, hard = 3
-weekly_difficulties = {}
 
+def get_difficulty_score(difficulty):
+    difficulty = difficulty.lower()
+    match difficulty:
+        case "easy": return 1
+        case "intermediate": return 3
+        case "hard": return 7
+    return 0 # default if no difficulty provided
 
-for week in moodle["weeks"]:
-    week_num = week["week_number"]
-    topic_difficulty = week.get("topic_difficulty")
-    if topic_difficulty:
-        difficulty = topic_difficulty.lower()
-        match difficulty:
-            case "easy": difficulty_score = 1
-            case "intermediate": difficulty_score = 3
-            case "hard": difficulty_score = 7
-    else:
-        difficulty_score = 0 # default if no difficulty provided
-    
-    weekly_difficulties[week_num] = difficulty_score
+def get_weekly_difficulties(json_weeks=MOODLE):
+    '''
+    Input: json with weekly topics and their difficulties
+    Returns a dictionary {week_number:int : difficulty_score:int} 
+    (easy=1, intermediate=3, hard=7)
+    '''
+    weekly_difficulties = {}
+    for week in json_weeks["weeks"]:
+        week_num = week["week_number"]
+        topic_difficulty = week.get("topic_difficulty")
+        difficulty_score = get_difficulty_score(topic_difficulty) if topic_difficulty else 0
+        weekly_difficulties[week_num] = difficulty_score
+    return weekly_difficulties
+
 
 # TODO: log, delete after done
-for week_num, difficulty_score in weekly_difficulties.items():
+for week_num, difficulty_score in get_weekly_difficulties().items():
     print(f"Week {week_num}: Difficulty Score = {difficulty_score}")
+
 
 '''
 Hard + important → red, must prioritise
