@@ -49,6 +49,33 @@ syllabus = json.loads(open("pipeline\\data\\processed\\COMP3223\\COMP3223_syllab
 # in future could be replaced by api call to smaller models
 
 
+# Step 1 get week difficulties
+moodle = json.loads(open("pipeline\\data\\processed\\COMP3223\\COMP3223_moodle_difficulties.json").read())
+# Keys dict_keys(['schema_version', 'source', 'module_code', 'module_title', 'academic_year', 'linked_modules', 
+# 'resources', 'staff', 'recurring_sessions', 'weeks', 'labs', 'tutorials'])
+# print(moodle["weeks"])
+# {week number: difficulty_score} easy =1, intermediate = 2, hard = 3
+weekly_difficulties = {}
+
+
+for week in moodle["weeks"]:
+    week_num = week["week_number"]
+    topic_difficulty = week.get("topic_difficulty")
+    if topic_difficulty:
+        difficulty = topic_difficulty.lower()
+        match difficulty:
+            case "easy": difficulty_score = 1
+            case "intermediate": difficulty_score = 3
+            case "hard": difficulty_score = 7
+    else:
+        difficulty_score = 0 # default if no difficulty provided
+    
+    weekly_difficulties[week_num] = difficulty_score
+
+# TODO: log, delete after done
+for week_num, difficulty_score in weekly_difficulties.items():
+    print(f"Week {week_num}: Difficulty Score = {difficulty_score}")
+
 '''
 Hard + important → red, must prioritise
 Hard + unimportant → amber, understand it but don't over-invest
